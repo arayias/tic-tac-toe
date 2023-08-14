@@ -8,6 +8,7 @@ const startGameBtn = document.querySelector("#start-game-btn");
 const player2Info = document.querySelector("#player2");
 const player1Score = document.querySelector("#player1-score");
 const player2Score = document.querySelector("#player2-score");
+let symbols = {};
 
 class Player {
   constructor(name = "name", symbol = "X") {
@@ -25,7 +26,7 @@ class Game {
       ["", "", ""],
       ["", "", ""],
     ]),
-      (this.currentPlayer = player1);
+      (this.currentPlayer = player1.symbol == "X" ? player1 : player2);
     this.gameOver = false;
     this.winner = null;
     this.renderBoard();
@@ -43,6 +44,7 @@ class Game {
   }
 
   play(row, col) {
+    console.log(this.currentPlayer);
     const currentTile = this.board[row][col];
     if (currentTile == "" && !this.gameOver) {
       this.board[row][col] = this.currentPlayer.symbol;
@@ -53,12 +55,8 @@ class Game {
 
   switchPlayer() {
     let root = document.documentElement;
-
-    console.log(
-      getComputedStyle(document.body).getPropertyValue("--current-player")
-    );
     this.currentPlayer =
-      this.currentPlayer === this.player1 ? this.player2 : this.player1;
+      this.currentPlayer == this.player1 ? this.player2 : this.player1;
     root.style.setProperty(
       "--current-player",
       `'${this.currentPlayer.symbol}'`
@@ -158,23 +156,20 @@ class Game {
 
     if (checkHorizontal() || checkVertical() || checkDiagonal()) {
       this.gameOver = true;
-      this.endGame();
       this.winner = this.currentPlayer;
       gameGrid.addEventListener(
         "transitionend",
         () => {
           gameGrid.classList.remove("game-over");
-          alert(`${this.currentPlayer.name} wins!`);
-          this.currentPlayer === this.player1
-            ? states.score[0]++
-            : states.score[1]++;
+          alert(`${this.winner.name} wins!`);
+          this.winner === this.player1 ? states.score[0]++ : states.score[1]++;
           resetAndCreateNewGame();
         },
         { once: true }
       );
+      this.endGame();
     } else if (checkDraw()) {
       this.gameOver = true;
-      this.endGame();
       gameGrid.addEventListener(
         "transitionend",
         () => {
@@ -184,6 +179,7 @@ class Game {
         },
         { once: true }
       );
+      this.endGame();
     }
   }
 }
@@ -196,23 +192,37 @@ startGameBtn.addEventListener("click", () => {
   }
 });
 
+function swapSymbols(symbol) {
+  return symbol == "X" ? "O" : "X";
+}
+
 function updateScores() {
   player1Score.textContent = states.score[0];
   player2Score.textContent = states.score[1];
 }
 
-function createNewGame() {
+function createNewGame(symbols) {
   gameGrid.innerHTML = "";
-  const player1 = new Player(player1Info.textContent, "X");
-  const player2 = new Player(player2Info.textContent, "O");
+  if (!symbols) {
+    symbols = {
+      p1: "O",
+      p2: "X", // will be swapped so p1 always starts with X
+    };
+  }
+  const player1 = new Player(player1Info.textContent, swapSymbols(symbols?.p1));
+  const player2 = new Player(player2Info.textContent, swapSymbols(symbols?.p2));
 
   states.game = new Game(player1, player2);
 }
 
 function resetAndCreateNewGame() {
   updateScores();
+  symbols = {
+    p1: states.game?.player1.symbol ?? "X",
+    p2: states.game?.player2.symbol ?? "O",
+  };
   if (states.game) {
     states.game = null; // Clear the current game instance
   }
-  createNewGame(); // Create a new game
+  createNewGame(symbols); // Create a new game
 }
