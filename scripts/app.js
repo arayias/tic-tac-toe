@@ -3,9 +3,9 @@ states = {
   score: [0, 0],
 };
 const gameGrid = document.querySelector("#game-grid");
-const player1Info = document.querySelector("#player1-info");
+const player1Info = document.querySelector("#player1");
 const startGameBtn = document.querySelector("#start-game-btn");
-const player2Info = document.querySelector("#player2-info");
+const player2Info = document.querySelector("#player2");
 const player1Score = document.querySelector("#player1-score");
 const player2Score = document.querySelector("#player2-score");
 
@@ -30,6 +30,12 @@ class Game {
     this.winner = null;
     this.renderBoard();
     this.addEventListeners();
+
+    let root = document.documentElement;
+    root.style.setProperty(
+      "--current-player",
+      `'${this.currentPlayer.symbol}'`
+    );
   }
 
   endGame() {
@@ -46,8 +52,17 @@ class Game {
   }
 
   switchPlayer() {
+    let root = document.documentElement;
+
+    console.log(
+      getComputedStyle(document.body).getPropertyValue("--current-player")
+    );
     this.currentPlayer =
       this.currentPlayer === this.player1 ? this.player2 : this.player1;
+    root.style.setProperty(
+      "--current-player",
+      `'${this.currentPlayer.symbol}'`
+    );
   }
 
   addEventListeners() {
@@ -145,22 +160,30 @@ class Game {
       this.gameOver = true;
       this.endGame();
       this.winner = this.currentPlayer;
-      gameGrid.addEventListener("transitionend", () => {
-        gameGrid.classList.remove("game-over");
-        alert(`${this.currentPlayer.name} wins!`);
-        this.currentPlayer === this.player1
-          ? states.score[0]++
-          : states.score[1]++;
-        resetAndCreateNewGame();
-      });
+      gameGrid.addEventListener(
+        "transitionend",
+        () => {
+          gameGrid.classList.remove("game-over");
+          alert(`${this.currentPlayer.name} wins!`);
+          this.currentPlayer === this.player1
+            ? states.score[0]++
+            : states.score[1]++;
+          resetAndCreateNewGame();
+        },
+        { once: true }
+      );
     } else if (checkDraw()) {
       this.gameOver = true;
       this.endGame();
-      gameGrid.addEventListener("transitionend", () => {
-        gameGrid.classList.remove("game-over");
-        alert("Draw!");
-        resetAndCreateNewGame();
-      });
+      gameGrid.addEventListener(
+        "transitionend",
+        () => {
+          gameGrid.classList.remove("game-over");
+          alert("Draw!");
+          resetAndCreateNewGame();
+        },
+        { once: true }
+      );
     }
   }
 }
@@ -173,15 +196,21 @@ startGameBtn.addEventListener("click", () => {
   }
 });
 
+function updateScores() {
+  player1Score.textContent = states.score[0];
+  player2Score.textContent = states.score[1];
+}
+
 function createNewGame() {
   gameGrid.innerHTML = "";
-  const player1 = new Player("Player 1", "X");
-  const player2 = new Player("Player 2", "O");
+  const player1 = new Player(player1Info.textContent, "X");
+  const player2 = new Player(player2Info.textContent, "O");
 
   states.game = new Game(player1, player2);
 }
 
 function resetAndCreateNewGame() {
+  updateScores();
   if (states.game) {
     states.game = null; // Clear the current game instance
   }
