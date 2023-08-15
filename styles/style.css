@@ -34,7 +34,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 50px;
+  font-size: clamp(13px, 50px, 40px);
   font-weight: bold;
   color: #776e65;
   background-color: #cdc1b4;
@@ -51,7 +51,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 50px;
+  font-size: clamp(13px, 50px, 40px);
   font-weight: bold;
   color: #776e65;
   content: var(--current-player);
@@ -74,7 +74,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-
   flex-direction: column;
   width: 50%;
   height: 100%;
