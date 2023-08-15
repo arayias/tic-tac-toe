@@ -8,6 +8,7 @@ const startGameBtn = document.querySelector("#start-game-btn");
 const player2Info = document.querySelector("#player2");
 const player1Score = document.querySelector("#player1-score");
 const player2Score = document.querySelector("#player2-score");
+
 let symbols = {};
 
 class Player {
@@ -40,10 +41,14 @@ class Game {
   }
 
   endGame() {
+    gameGrid.classList.add("game-over");
+    gameGrid.addEventListener("transitionend", this.handleTransitionEnd, {
+      once: true,
+    });
+
     const root = document.documentElement;
     const gameOverText = this.winner ? `${this.winner.name} wins!` : "Draw!";
     root.style.setProperty("--winner", `'${gameOverText}'`);
-    gameGrid.classList.add("game-over");
   }
 
   play(row, col) {
@@ -158,28 +163,39 @@ class Game {
     };
 
     if (checkHorizontal() || checkVertical() || checkDiagonal()) {
+      console.log("game over by win");
       this.gameOver = true;
       this.winner = this.currentPlayer;
-
-      gameGrid.addEventListener("transitionend", (e) => {
-        if (e.target !== gameGrid) return;
-        console.log("transitionend");
-        gameGrid.classList.remove("game-over");
-        this.winner === this.player1 ? states.score[0]++ : states.score[1]++;
-        resetAndCreateNewGame();
-      });
       this.endGame();
     } else if (checkDraw()) {
+      console.log("game over by draw");
       this.gameOver = true;
-      gameGrid.addEventListener("transitionend", (e) => {
-        if (e.target !== gameGrid) return;
-        console.log(e);
-        console.log("transitionend");
-        gameGrid.classList.remove("game-over");
-        resetAndCreateNewGame();
-      });
+      this.winner = null;
       this.endGame();
     }
+  }
+
+  handleTransitionEnd(e) {
+    e.stopPropagation();
+    console.debug(`
+    DEBUGGING FOR TRANSITIONEND
+    target: ${e.target}
+    propertyName: ${e.propertyName}
+    winner: ${states.game.winner}
+    `);
+    if (e.propertyName == "opacity" && e.target == gameGrid) {
+      console.log("transitionend");
+
+      // Check for win or draw
+      console.log(states.game.winnner);
+      if (states.game.winner) {
+        states.game.winner === states.game.player1
+          ? states.score[0]++
+          : states.score[1]++;
+      }
+    }
+    resetAndCreateNewGame();
+    gameGrid.classList.remove("game-over");
   }
 }
 
