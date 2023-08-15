@@ -40,6 +40,9 @@ class Game {
   }
 
   endGame() {
+    const root = document.documentElement;
+    const gameOverText = this.winner ? `${this.winner.name} wins!` : "Draw!";
+    root.style.setProperty("--winner", `'${gameOverText}'`);
     gameGrid.classList.add("game-over");
   }
 
@@ -157,28 +160,24 @@ class Game {
     if (checkHorizontal() || checkVertical() || checkDiagonal()) {
       this.gameOver = true;
       this.winner = this.currentPlayer;
-      gameGrid.addEventListener(
-        "transitionend",
-        () => {
-          gameGrid.classList.remove("game-over");
-          alert(`${this.winner.name} wins!`);
-          this.winner === this.player1 ? states.score[0]++ : states.score[1]++;
-          resetAndCreateNewGame();
-        },
-        { once: true }
-      );
+
+      gameGrid.addEventListener("transitionend", (e) => {
+        if (e.target !== gameGrid) return;
+        console.log("transitionend");
+        gameGrid.classList.remove("game-over");
+        this.winner === this.player1 ? states.score[0]++ : states.score[1]++;
+        resetAndCreateNewGame();
+      });
       this.endGame();
     } else if (checkDraw()) {
       this.gameOver = true;
-      gameGrid.addEventListener(
-        "transitionend",
-        () => {
-          gameGrid.classList.remove("game-over");
-          alert("Draw!");
-          resetAndCreateNewGame();
-        },
-        { once: true }
-      );
+      gameGrid.addEventListener("transitionend", (e) => {
+        if (e.target !== gameGrid) return;
+        console.log(e);
+        console.log("transitionend");
+        gameGrid.classList.remove("game-over");
+        resetAndCreateNewGame();
+      });
       this.endGame();
     }
   }

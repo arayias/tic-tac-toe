@@ -3,10 +3,16 @@
 *::after {
   box-sizing: border-box;
   font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(13px, 2vw, 20px);
+}
+
+body {
+  height: 90vh;
 }
 
 :root {
   --current-player: "X";
+  --winner: "X wins!";
 }
 
 #game-grid {
@@ -14,12 +20,14 @@
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: 10px;
-  height: 70%;
+  height: clamp(30%, 55%, 70%);
+  min-width: 1px;
   aspect-ratio: 1/1;
   background-color: #bbada0;
   border-radius: 10px;
   padding: 1em;
   transition: opacity 1s ease-in-out;
+  position: relative;
 }
 
 .game-grid-tile {
@@ -47,7 +55,7 @@
   font-weight: bold;
   color: #776e65;
   content: var(--current-player);
-  animation: playerAppear 0.1s ease-in-out forwards;
+  animation: playerAppear 0.2s ease-in-out forwards;
   transform-origin: bottom;
 }
 
@@ -66,20 +74,35 @@
   display: flex;
   justify-content: center;
   align-items: center;
+
   flex-direction: column;
-  height: 90vh;
-  width: 100%;
+  width: 50%;
+  height: 100%;
+  margin: 0 auto;
 }
 
 .game-over {
   opacity: 0.5;
 }
 
+.game-over::before {
+  content: var(--winner);
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  top: 25%;
+  text-align: center;
+  text-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+  font-size: 25px;
+}
+
 .player-info {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  width: 50%;
+  width: 70%;
   margin-bottom: 1em;
   flex-direction: row;
 }
@@ -88,12 +111,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 30%;
   flex-direction: column;
+  text-align: center;
   border: none;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
   border-radius: 10px;
   padding: 1em;
+  font-size: 13px;
 }
 
 #start-game-btn {
@@ -101,9 +125,11 @@
   border-radius: 5px;
   padding: 0.5em;
   color: #f9f6f2;
-  font-size: 1.5em;
+  font-size: 1.2em;
   font-weight: bold;
   border: none;
   cursor: pointer;
   transition: background-color 0.5s ease-in-out;
+  margin-left: 1em;
+  margin-right: 1em;
 }
